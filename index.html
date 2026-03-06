@@ -4,6 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>MiGalería</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#080c12">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="MiGalería">
 <link href="https://fonts.googleapis.com/css2?family=Clash+Display:wght@400;500;600;700&family=Manrope:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -1690,6 +1695,11 @@ function hexA(hex,a){const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,
 function shiftColor(hex){const i=COLORS.indexOf(hex);return COLORS[(i+2)%COLORS.length];}
 
 // ════ INIT ════
+// registrar service worker
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('sw.js').catch(()=>{});
+}
+
 function hideSplash(){
   const s=document.getElementById('splash');
   s.classList.add('hide');
