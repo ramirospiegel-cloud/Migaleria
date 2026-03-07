@@ -1259,18 +1259,13 @@ async function openFolder(folder, cardEl){
   banner.classList.remove('visible');
   bannerVid.pause(); bannerVid.src = '';
 
-  if(folder.previewId && blobCache[folder.id]){
-    bannerVid.src = blobCache[folder.id];
-    bannerVid.load();
-    bannerVid.play().catch(()=>{});
-  } else if(folder.previewId){
-    loadPreviewBlob(folder).then(url=>{
-      if(currentFolder.id === folder.id){
-        bannerVid.src = url;
-        bannerVid.load();
-        bannerVid.play().catch(()=>{});
-      }
-    });
+  if(folder.previewId){
+    const url = blobCache[folder.id] || await loadPreviewBlob(folder);
+    if(url && currentFolder.id === folder.id){
+      bannerVid.src = url;
+      bannerVid.load();
+      bannerVid.play().catch(()=>{});
+    }
   }
   setTimeout(()=>banner.classList.add('visible'), 50);
 
