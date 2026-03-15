@@ -33,11 +33,25 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9997;b
 .orb1{width:300px;height:300px;background:rgba(79,142,255,0.07);top:-120px;right:-80px}
 .orb2{width:240px;height:240px;background:rgba(255,95,126,0.06);bottom:60px;left:-90px}
 
-.view{display:none;flex-direction:column;flex:1;overflow:hidden}
-.view.active{display:flex}
+.view{position:absolute;inset:0;display:flex;flex-direction:column;flex:1;overflow:hidden;visibility:hidden;pointer-events:none;}
+.view.active{visibility:visible;pointer-events:all;}
+
+#viewHome{
+  transform:translateX(0);
+  transition:transform .3s cubic-bezier(.25,.8,.25,1);
+  will-change:transform;
+  visibility:visible !important;
+}
+#viewHome.slide-out{
+  transform:translateX(-30%);
+}
+#viewHome.active{
+  transform:translateX(0);
+}
 
 /* ── HEADER ── */
-header{flex-shrink:0;padding:20px 20px 16px;background:rgba(8,12,18,0.96);backdrop-filter:blur(24px);border-bottom:1px solid var(--border);z-index:50;position:relative;}
+header{flex-shrink:0;padding:20px 20px 16px;background:rgba(8,12,18,0.96);backdrop-filter:blur(24px);border-bottom:1px solid var(--border);z-index:50;position:relative;transition:transform .3s cubic-bezier(.25,.8,.25,1), opacity .3s ease;will-change:transform;}
+header.hidden{transform:translateY(-100%);opacity:0;}
 .header-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:3px}
 .logo{font-family:'Clash Display',sans-serif;font-weight:700;font-size:28px;letter-spacing:-0.5px}
 .logo span{background:linear-gradient(120deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
@@ -59,8 +73,9 @@ header{flex-shrink:0;padding:20px 20px 16px;background:rgba(8,12,18,0.96);backdr
 .section-action{font-size:13px;color:var(--accent);font-weight:500;cursor:pointer}
 
 /* ════ FOLDER CARD ════ */
-.folder-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;padding:0 16px 20px;}
+.folder-grid{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;padding:0 14px 20px;}
 .folder-card{border-radius:var(--radius);overflow:hidden;background:var(--card);border:1px solid var(--border);cursor:pointer;position:relative;animation:riseIn .4s ease both;user-select:none;will-change:transform;transition:transform .18s;}
+.folder-card:active{transform:scale(.96)}
 .video-card{border-radius:16px;overflow:hidden;background:var(--card);border:1px solid var(--border);cursor:pointer;transition:transform .2s;animation:riseIn .35s ease both;position:relative;will-change:transform;}
 @keyframes riseIn{from{opacity:0;transform:translateY(16px) scale(.97)}to{opacity:1;transform:translateY(0) scale(1)}}
 .folder-card:active{transform:scale(.96)}
@@ -85,20 +100,17 @@ header{flex-shrink:0;padding:20px 20px 16px;background:rgba(8,12,18,0.96);backdr
 .folder-card.has-img .folder-emoji-layer{opacity:0}
 .folder-card.has-img .folder-img-layer{opacity:1}
 
-/* badges */
-.img-badge{position:absolute;top:8px;right:8px;z-index:5;background:rgba(0,0,0,.82);backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,.1);color:#fff;font-size:10px;font-weight:700;letter-spacing:.6px;padding:3px 8px;border-radius:20px;display:none;align-items:center;gap:4px;}
-.img-badge svg{width:10px;height:10px}
-.folder-card.has-img .img-badge{display:flex}
+/* badges ocultos */
+.img-badge{display:none !important}
+.preview-badge{display:none !important}
 
-.preview-badge{position:absolute;top:8px;left:8px;z-index:5;background:var(--gold);color:#000;font-size:10px;font-weight:700;letter-spacing:.6px;padding:3px 8px;border-radius:20px;display:none;align-items:center;gap:4px;}
-.preview-badge svg{width:10px;height:10px}
-.folder-card.has-preview .preview-badge{display:flex}
-
-.folder-info{padding:12px 14px 14px;border-top:1px solid var(--border)}
-.folder-name{font-size:15px;font-weight:600;letter-spacing:-0.2px;margin-bottom:4px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.folder-meta{display:flex;align-items:center;justify-content:space-between}
-.folder-count{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:5px}
-.folder-color-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.folder-info{padding:8px 10px 10px;}
+.folder-name{font-size:12px;font-weight:600;letter-spacing:-0.2px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:center;}
+.folder-meta{display:none}
+.folder-color-dot{display:none}
+.folder-arrow{display:none}
+.drag-handle{display:none !important}
+.folder-grid.folder-edit-mode .drag-handle{display:flex !important}
 .folder-arrow{width:24px;height:24px;border-radius:8px;background:var(--card2);display:flex;align-items:center;justify-content:center;color:var(--muted)}
 .folder-arrow svg{width:12px;height:12px}
 
@@ -122,8 +134,9 @@ header{flex-shrink:0;padding:20px 20px 16px;background:rgba(8,12,18,0.96);backdr
 }
 #floatingPreview.visible{opacity:1;transform:scale(1)}
 #floatingPreview video{width:100%;height:100%;object-fit:cover;display:block}
-#floatingPreview .fp-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.75) 0%,transparent 50%);pointer-events:none}
-#floatingPreview .fp-name{position:absolute;bottom:14px;left:0;right:0;text-align:center;font-family:'Clash Display',sans-serif;font-size:15px;font-weight:600;color:#fff;text-shadow:0 2px 8px rgba(0,0,0,.6);padding:0 12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+#floatingPreview .fp-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.85) 0%,transparent 50%);pointer-events:none}
+#floatingPreview .fp-name{position:absolute;bottom:14px;left:0;right:0;text-align:center;font-family:'Clash Display',sans-serif;font-size:15px;font-weight:600;color:#fff;text-shadow:0 2px 8px rgba(0,0,0,.6);padding:0 12px;}
+#floatingPreview .fp-meta{position:absolute;bottom:36px;left:0;right:0;text-align:center;font-size:11px;color:rgba(255,255,255,.65);padding:0 12px;}
 
 /* empty */
 .empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 30px;text-align:center}
@@ -193,7 +206,7 @@ header{flex-shrink:0;padding:20px 20px 16px;background:rgba(8,12,18,0.96);backdr
   header{padding:10px 20px;display:flex;flex-direction:row;align-items:center;gap:16px;}
   header .header-row{margin-bottom:0;flex:1}
   .home-stats{display:none}
-  .folder-grid{grid-template-columns:1fr 1fr 1fr;gap:10px;padding:10px 14px 80px;}
+  .folder-grid{grid-template-columns:1fr 1fr 1fr 1fr 1fr;gap:8px;padding:8px 14px 16px;}
   .video-grid{grid-template-columns:1fr 1fr 1fr 1fr;gap:6px;padding:8px 10px 80px;}
   .folder-view-header{padding:10px 16px;}
   #viewHome{padding-top:0}
@@ -202,7 +215,7 @@ header{flex-shrink:0;padding:20px 20px 16px;background:rgba(8,12,18,0.96);backdr
 
 /* tablet portrait (600px+) */
 @media (min-width:600px) and (orientation:portrait){
-  .folder-grid{grid-template-columns:1fr 1fr 1fr;gap:16px;padding:0 20px 24px;}
+  .folder-grid{grid-template-columns:1fr 1fr 1fr 1fr 1fr;gap:12px;padding:0 20px 24px;}
   .video-grid{grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;padding:14px 16px 100px;}
   header{padding:24px 28px 18px;}
   .folder-view-header{padding:18px 28px;}
@@ -210,13 +223,20 @@ header{flex-shrink:0;padding:20px 20px 16px;background:rgba(8,12,18,0.96);backdr
 
 /* tablet landscape (600px+ landscape) */
 @media (min-width:600px) and (orientation:landscape){
-  .folder-grid{grid-template-columns:1fr 1fr 1fr 1fr;gap:16px;padding:0 24px 24px;}
+  .folder-grid{grid-template-columns:1fr 1fr 1fr 1fr 1fr 1fr;gap:12px;padding:0 24px 24px;}
   .video-grid{grid-template-columns:1fr 1fr 1fr 1fr 1fr;gap:10px;padding:14px 20px 100px;}
   header{padding:18px 28px 14px;}
   .folder-view-header{padding:14px 28px;}
   .home-stats{gap:24px;}
 }
-.folder-card.dragging{opacity:.4;transform:scale(.96);transition:none;}
+.banner-edit-btn{background:rgba(255,255,255,.15);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.2);color:#fff;font-size:13px;font-weight:600;padding:6px 14px;border-radius:20px;cursor:pointer;transition:background .2s;}
+.banner-edit-btn.active{background:var(--accent);border-color:var(--accent);}
+
+.video-card .video-drag-handle{display:none;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:36px;height:36px;background:rgba(0,0,0,.7);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.2);border-radius:50%;align-items:center;justify-content:center;z-index:10;cursor:grab;color:#fff;}
+.video-grid.edit-mode .video-card .video-drag-handle{display:flex;}
+.video-grid.edit-mode .video-card{cursor:default;}
+.video-card.dragging{opacity:.4;transform:scale(.95);transition:none;}
+.video-card.drag-over-vid{border:2px solid var(--accent);border-radius:var(--radius);}
 .folder-card.drag-over{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent);transform:scale(1.03);}
 .drag-ghost{position:fixed;z-index:9000;pointer-events:none;opacity:.92;box-shadow:0 16px 48px rgba(0,0,0,.6);transform:scale(1.06) rotate(1.5deg);transition:none;border-radius:var(--radius);overflow:hidden;}
 .drag-handle{
@@ -289,14 +309,18 @@ header{flex-shrink:0;padding:20px 20px 16px;background:rgba(8,12,18,0.96);backdr
 }
 #viewFolder{
   transform:translateX(100%);
-  transition:transform .32s cubic-bezier(.4,0,.2,1);
+  transition:transform .3s cubic-bezier(.25,.8,.25,1);
   will-change:transform;
+  visibility:visible !important;
+  background:var(--bg);
 }
 #viewFolder.active{
   transform:translateX(0);
+  pointer-events:all;
 }
 #viewFolder.slide-back{
   transform:translateX(100%);
+  pointer-events:none;
 }
 .folder-view-header{flex-shrink:0;background:rgba(8,12,18,0.96);backdrop-filter:blur(24px);border-bottom:1px solid var(--border);padding:16px 20px;z-index:50;}
 .fv-top{display:flex;align-items:center;gap:12px}
@@ -306,18 +330,15 @@ header{flex-shrink:0;padding:20px 20px 16px;background:rgba(8,12,18,0.96);backdr
 .fv-name{font-family:'Clash Display',sans-serif;font-size:20px;font-weight:700;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .fv-count{font-size:12px;color:var(--muted);margin-top:1px}
 
-.video-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;padding:12px 10px 100px}
+.video-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px;padding:4px 4px 100px}
 .video-card{border-radius:16px;overflow:hidden;background:var(--card);border:1px solid var(--border);cursor:pointer;transition:transform .2s;animation:riseIn .35s ease both;position:relative;}
 .video-card:active{transform:scale(.96)}
 .video-card.is-preview::after{content:'PREVIEW';position:absolute;top:8px;left:8px;background:var(--gold);color:#000;font-size:9px;font-weight:800;letter-spacing:1px;padding:3px 8px;border-radius:20px;z-index:5;}
-.vc-thumb{position:relative;aspect-ratio:16/9;overflow:hidden;background:#0a0a18}
+.vc-thumb{position:relative;aspect-ratio:16/9;overflow:hidden;background:#0a0a18;border-radius:var(--radius)}
 .vc-thumb video{width:100%;height:100%;object-fit:cover;display:block;pointer-events:none}
-.vc-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.7) 0%,transparent 55%)}
-.vc-play{position:absolute;bottom:8px;right:8px;width:30px;height:30px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;box-shadow:0 0 14px var(--glow);}
-.vc-play svg{width:13px;height:13px;color:#fff;margin-left:2px}
-.vc-info{padding:9px 10px 11px}
-.vc-title{font-size:13px;font-weight:500;line-height:1.3;color:var(--text);margin-bottom:4px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.vc-meta{font-size:11px;color:var(--muted)}
+.vc-overlay{display:none}
+.vc-play{display:none}
+.vc-info{display:none}
 
 /* upload progress */
 .upload-progress{display:none;position:fixed;bottom:100px;left:20px;right:20px;z-index:300;background:var(--card2);border:1px solid var(--border);border-radius:16px;padding:14px 16px;box-shadow:0 8px 32px rgba(0,0,0,.5);}
@@ -478,6 +499,9 @@ header{flex-shrink:0;padding:20px 20px 16px;background:rgba(8,12,18,0.96);backdr
 
 /* acciones */
 .cp-actions{display:flex;gap:10px}
+.cp-skip-btn{width:48px;height:48px;border-radius:50%;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;cursor:pointer;color:#fff;backdrop-filter:blur(8px);}
+.cp-skip-btn svg{width:24px;height:24px;}
+.cp-skip-btn:active{transform:scale(.92);}
 .cp-action-btn{
   flex:1;padding:11px;border-radius:14px;
   background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);
@@ -575,6 +599,7 @@ header{flex-shrink:0;padding:20px 20px 16px;background:rgba(8,12,18,0.96);backdr
 <div id="floatingPreview">
   <video muted playsinline loop preload="none"></video>
   <div class="fp-overlay"></div>
+  <div class="fp-meta" id="fpPreviewMeta"></div>
   <div class="fp-name" id="fpPreviewName">—</div>
 </div>
 
@@ -587,6 +612,12 @@ header{flex-shrink:0;padding:20px 20px 16px;background:rgba(8,12,18,0.96);backdr
         <div class="header-sub" id="headerSub">Cargando…</div>
       </div>
       <div class="hdr-btns">
+        <button class="hdr-btn" id="reorderFoldersBtn" onclick="toggleFolderEditMode()" style="display:none">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+        </button>
+        <button class="hdr-btn" id="reorderFoldersTrigger" onclick="toggleFolderEditMode()">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+        </button>
         <button class="hdr-btn" onclick="openNewFolder()">
           <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
         </button>
@@ -617,12 +648,10 @@ header{flex-shrink:0;padding:20px 20px 16px;background:rgba(8,12,18,0.96);backdr
       </div>
     </div>
   </div>
-  <button class="fab" onclick="openNewFolder()">
-    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-  </button>
 </div>
 
 <!-- ════ VIEW: FOLDER ════ -->
+
 <div class="view" id="viewFolder">
 
   <!-- banner preview de carpeta — ahora incluye toda la info -->
@@ -640,7 +669,6 @@ header{flex-shrink:0;padding:20px 20px 16px;background:rgba(8,12,18,0.96);backdr
     </div>
     <!-- título sobre el degradado inferior -->
     <div class="banner-info">
-      <div class="banner-emoji" id="fvEmoji">📁</div>
       <div>
         <div class="banner-title" id="fvName">—</div>
         <div class="banner-count" id="fvCount">0 videos</div>
@@ -650,6 +678,10 @@ header{flex-shrink:0;padding:20px 20px 16px;background:rgba(8,12,18,0.96);backdr
 
   <div class="scroll-area">
     <div class="video-grid" id="videoGrid"></div>
+    <!-- botón listo modo edición -->
+    <div id="editModeBanner" style="display:none;position:sticky;bottom:16px;left:0;right:0;display:none;justify-content:center;padding:12px 0;z-index:50;">
+      <button onclick="toggleEditMode()" style="background:var(--accent);color:#fff;font-size:14px;font-weight:700;padding:10px 32px;border-radius:24px;border:none;box-shadow:0 4px 20px var(--glow);cursor:pointer;">✓ Listo</button>
+    </div>
     <div id="emptyFolder" style="display:none">
       <div class="empty-state">
         <div class="empty-icon"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.069A1 1 0 0121 8.87v6.26a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg></div>
@@ -768,9 +800,19 @@ header{flex-shrink:0;padding:20px 20px 16px;background:rgba(8,12,18,0.96);backdr
       </div>
       <!-- acciones -->
       <div class="cp-actions">
+        <button class="cp-skip-btn" onclick="playPrevious()">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+        </button>
+        <button class="cp-skip-btn" onclick="playNext()">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+        </button>
         <button class="cp-action-btn gold" id="cpPreviewBtn" onclick="setAsPreview()">
           <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3l14 9-14 9V3z"/></svg>
           <span id="previewLabel">Usar como preview</span>
+        </button>
+        <button class="cp-action-btn" id="cpBannerBtn" onclick="setAsBanner()" style="background:rgba(99,102,241,.15);border-color:rgba(99,102,241,.3);color:#818cf8;">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h8M4 18h8"/></svg>
+          <span id="bannerLabel">Usar como banner</span>
         </button>
       </div>
     </div>
@@ -847,6 +889,10 @@ header{flex-shrink:0;padding:20px 20px 16px;background:rgba(8,12,18,0.96);backdr
         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
         Renombrar
       </button>
+      <button class="fold-btn" onclick="closeSheet('sheetFolderOpts');toggleEditMode()">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h8M4 18h8"/></svg>
+        Reordenar videos
+      </button>
       <button class="fold-btn danger" onclick="deleteFolder()">
         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
         Eliminar
@@ -881,6 +927,7 @@ const dbByIdx=(s,i,v)=>new Promise((r,j)=>{const q=dbTx(s).index(i).getAll(v);q.
 const EMOJIS=['📁','🎬','🎮','🏖️','👨‍👩‍👧','🎵','🏋️','🐾','✈️','🍕','🎭','📚','🌿','💼','🏆','🎨','🚗','🌙'];
 const COLORS=['#4f8eff','#ff5f7e','#f5c842','#3ecf8e','#a78bfa','#fb923c','#38bdf8','#f472b6','#34d399','#facc15'];
 let folders=[],currentFolder=null,currentVideos=[],currentVideo=null;
+let lastPos={videoId:null, position:0};
 let pendingFile=null,selEmoji=EMOJIS[0],selColor=COLORS[0];
 const blobCache={};  // folderId → video blob URL for preview
 
@@ -897,6 +944,9 @@ function goHome(){
   const bannerVid=document.getElementById('bannerVid');
   bannerVid.pause(); bannerVid.src='';
   document.getElementById('folderBanner').classList.remove('visible');
+  editMode = false;
+  document.getElementById('videoGrid').classList.remove('edit-mode');
+  document.getElementById('editModeBanner').style.display = 'none';
   folderVideoBlobUrls.forEach(u=>{ try{ URL.revokeObjectURL(u); }catch(e){} });
   folderVideoBlobUrls=[];
   currentFolder=null;currentVideos=[];
@@ -904,19 +954,22 @@ function goHome(){
   // pre-renderizar home MIENTRAS la carpeta todavía es visible
   renderHome();
 
-  // luego animar slide de salida y cambiar vista
+  // animar salida con fade y cambiar vista
   const fv=document.getElementById('viewFolder');
+  const vh=document.getElementById('viewHome');
   fv.classList.add('slide-back');
+  vh.classList.remove('slide-out');
   setTimeout(()=>{
     fv.classList.remove('slide-back');
     showView('viewHome');
-  }, 300);
+  }, 320);
 }
 
 // ════ FLOATING PREVIEW ════
 const fpEl=document.getElementById('floatingPreview');
 const fpVid=fpEl.querySelector('video');
 const fpLbl=document.getElementById('fpPreviewName');
+const fpMeta=document.getElementById('fpPreviewMeta');
 let fpHideTimer=null;
 let fpJumpTimer=null;  // intervalo de salto entre fragmentos
 let fpSegment=0;       // fragmento actual
@@ -941,6 +994,10 @@ function stopFragmentJumps(){
 }
 
 function showPreview(cardEl, folder, blobUrl, touchX, touchY, isFolder=false){
+  // pausar banner mientras hay preview activo
+  const bannerVid = document.getElementById('bannerVid');
+  if(bannerVid && !bannerVid.paused) bannerVid.pause();
+
   // tamaño según tipo: carpeta → vertical 9:16, video → horizontal 16:9
   const W = isFolder ? window.innerWidth * 0.72 : window.innerWidth * 0.88;
   const H = isFolder ? W * (16/9) : W * (9/16);
@@ -957,6 +1014,11 @@ function showPreview(cardEl, folder, blobUrl, touchX, touchY, isFolder=false){
   fpEl.style.top    = top  + 'px';
 
   fpLbl.textContent = folder.name;
+  if(isFolder){
+    fpMeta.textContent = folder.count !== undefined ? `${folder.count} video${folder.count!==1?'s':''}` : '';
+  } else {
+    fpMeta.textContent = folder.size ? `${fmtTime(folder.duration||0)} · ${fmt(folder.size)}` : '';
+  }
 
   if(fpVid.src !== blobUrl){
     fpVid.src = blobUrl;
@@ -979,6 +1041,40 @@ function hidePreview(){
   document.getElementById('previewDimmer').classList.remove('visible');
   stopFragmentJumps();
   fpHideTimer=setTimeout(()=>{fpVid.pause();fpVid.src='';},300);
+  // reanudar banner si hay uno activo
+  const bannerVid = document.getElementById('bannerVid');
+  if(bannerVid && bannerVid.src) bannerVid.play().catch(()=>{});
+}
+
+// ════ HEADER HIDE ON SCROLL ════
+function initHeaderScroll(){
+  let lastY = 0;
+  const homeScroll = document.querySelector('#viewHome .scroll-area');
+  const hdr = document.querySelector('#viewHome header');
+  if(homeScroll && hdr){
+    homeScroll.addEventListener('scroll', ()=>{
+      const y = homeScroll.scrollTop;
+      if(y > lastY && y > 60){
+        hdr.classList.add('hidden');
+      } else {
+        hdr.classList.remove('hidden');
+      }
+      lastY = y;
+    }, {passive:true});
+  }
+}
+
+// ════ FOLDER EDIT MODE ════
+let folderEditMode = false;
+function toggleFolderEditMode(){
+  folderEditMode = !folderEditMode;
+  const grid = document.getElementById('folderGrid');
+  const trigger = document.getElementById('reorderFoldersTrigger');
+  const done = document.getElementById('reorderFoldersBtn');
+  grid.classList.toggle('folder-edit-mode', folderEditMode);
+  trigger.style.display = folderEditMode ? 'none' : 'flex';
+  done.style.display = folderEditMode ? 'flex' : 'none';
+  if(folderEditMode) hap.tap();
 }
 
 // ════ HOME ════
@@ -994,7 +1090,8 @@ async function renderHome(){
   allVids.forEach(v=>{counts[v.folderId]=(counts[v.folderId]||0)+1;});
   document.getElementById('statFolders').textContent=folders.length;
   document.getElementById('statVideos').textContent=allVids.length;
-  document.getElementById('headerSub').textContent=folders.length===0?'Sin carpetas':`${folders.length} carpeta${folders.length!==1?'s':''}`;
+  const totalVids = allVids.length;
+  document.getElementById('headerSub').textContent = folders.length===0 ? 'Sin carpetas' : `${folders.length} carpeta${folders.length!==1?'s':''} · ${totalVids} video${totalVids!==1?'s':''}`;
   const grid=document.getElementById('folderGrid'),empty=document.getElementById('emptyHome'),tip=document.getElementById('tipBanner');
   tip.style.display=folders.length?'flex':'none';
   if(!folders.length){grid.innerHTML='';empty.style.display='block';return;}
@@ -1009,6 +1106,7 @@ async function renderHome(){
 
     const card=document.createElement('div');
     card.className='folder-card'+(hasImg?' has-img':'')+(hasPreview?' has-preview':'');
+    card.dataset.folderId = folder.id;
     card.style.animationDelay=(i*0.05)+'s';
 
     card.innerHTML=`
@@ -1047,7 +1145,7 @@ async function renderHome(){
         if(!url)return;
         holding=true;
         hap.preview();
-        showPreview(card,folder,url,tx,ty,true);
+        showPreview(card,{...folder, count},url,tx,ty,true);
       },320);
     }
     function onMove(e){
@@ -1247,8 +1345,9 @@ function refreshCoverImgSheet(){
 async function openFolder(folder, cardEl){
   hap.tap();
 
+  if(folderEditMode) toggleFolderEditMode();
   currentFolder = folder;
-  document.getElementById('fvEmoji').textContent = folder.emoji;
+  // fvEmoji eliminado del banner
   document.getElementById('fvName').textContent  = folder.name;
   document.getElementById('videoGrid').innerHTML = '';
   document.getElementById('emptyFolder').style.display = 'none';
@@ -1259,18 +1358,35 @@ async function openFolder(folder, cardEl){
   banner.classList.remove('visible');
   bannerVid.pause(); bannerVid.src = '';
 
-  if(folder.previewId){
-    const url = blobCache[folder.id] || await loadPreviewBlob(folder);
+  if(folder.bannerId || folder.previewId){
+    const bannerVidId = folder.bannerId || folder.previewId;
+    const cacheKey = folder.bannerId ? 'banner_'+folder.id : folder.id;
+    const url = blobCache[cacheKey] || await (async()=>{
+      try{
+        const vids=await dbByIdx('videos','folderId',folder.id);
+        const vid=vids.find(v=>v.id===bannerVidId);
+        if(!vid) return null;
+        const blob=new Blob([vid.buffer],{type:vid.mime||'video/mp4'});
+        blobCache[cacheKey]=URL.createObjectURL(blob);
+        return blobCache[cacheKey];
+      }catch(e){return null;}
+    })();
     if(url && currentFolder.id === folder.id){
       bannerVid.src = url;
       bannerVid.load();
       bannerVid.play().catch(()=>{});
     }
   }
-  setTimeout(()=>banner.classList.add('visible'), 50);
+  setTimeout(()=>banner.classList.add('visible'), 200);
 
-  // mostrar vista inmediatamente con slide
-  showView('viewFolder');
+  // mostrar vista con slide desde la derecha
+  const fv = document.getElementById('viewFolder');
+  const vh = document.getElementById('viewHome');
+  vh.classList.remove('active');
+  fv.classList.remove('active','slide-back');
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{
+    showView('viewFolder');
+  }));
 
   // parallax en el banner al hacer scroll
   const scrollEl = document.querySelector('#viewFolder .scroll-area');
@@ -1288,9 +1404,27 @@ async function openFolder(folder, cardEl){
   await renderFolderVideos();
 }
 
+// ════ EDIT MODE VIDEOS ════
+let editMode = false;
+let dragSrcCard = null;
+
+function toggleEditMode(){
+  editMode = !editMode;
+  const grid = document.getElementById('videoGrid');
+  const editBanner = document.getElementById('editModeBanner');
+  grid.classList.toggle('edit-mode', editMode);
+  editBanner.style.display = editMode ? 'flex' : 'none';
+  if(editMode) hap.tap();
+}
+
+function setupVideoDrag(){
+  // el drag ahora se maneja directamente en los touch handlers de cada card
+  // esta función queda vacía para compatibilidad
+}
+
 async function renderFolderVideos(){
   currentVideos=await dbByIdx('videos','folderId',currentFolder.id);
-  currentVideos.sort((a,b)=>b.addedAt-a.addedAt);
+  currentVideos.sort((a,b)=> (a.order??b.addedAt) - (b.order??a.addedAt) || b.addedAt-a.addedAt);
   const cnt=currentVideos.length;
   document.getElementById('fvCount').textContent=`${cnt} video${cnt!==1?'s':''}`;
   const grid=document.getElementById('videoGrid'),empty=document.getElementById('emptyFolder');
@@ -1305,6 +1439,7 @@ async function renderFolderVideos(){
 
     const card=document.createElement('div');
     card.className='video-card'+(isPreview?' is-preview':'');
+    card.dataset.vid = vid.id;
     card.style.animationDelay=(i*0.04)+'s';
     card.style.userSelect='none';
     card.innerHTML=`
@@ -1312,6 +1447,9 @@ async function renderFolderVideos(){
         <video preload="metadata" muted playsinline></video>
         <div class="vc-overlay"></div>
         <div class="vc-play"><svg fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+        <div class="video-drag-handle">
+          <svg fill="currentColor" viewBox="0 0 24 24" width="18" height="18"><path d="M8 6a2 2 0 110-4 2 2 0 010 4zm8 0a2 2 0 110-4 2 2 0 010 4zM8 14a2 2 0 110-4 2 2 0 010 4zm8 0a2 2 0 110-4 2 2 0 010 4zM8 22a2 2 0 110-4 2 2 0 010 4zm8 0a2 2 0 110-4 2 2 0 010 4z"/></svg>
+        </div>
       </div>
       <div class="vc-info">
         <div class="vc-title">${vid.title}</div>
@@ -1334,59 +1472,110 @@ async function renderFolderVideos(){
     let pressTimer=null, holding=false, isTouchDevice=false;
     let didMove=false, startX=0, startY=0;
     let scrubbing=false, lastSeekTime=0;
+    let draggingEdit=false;
 
     function onTouchStart(e){
       isTouchDevice=true;
       const touch=e.touches[0];
       startX=touch.clientX; startY=touch.clientY;
-      didMove=false; scrubbing=false;
+      didMove=false; scrubbing=false; draggingEdit=false;
       const tx=touch.clientX, ty=touch.clientY;
       createRipple(card, tx, ty);
       pressTimer=setTimeout(()=>{
         if(didMove) return;
-        holding=true; hap.preview();
-        showPreview(card, {name:vid.title}, url, tx, ty);
+        if(editMode){
+          // en modo edición: press-hold activa arrastre
+          draggingEdit=true;
+          dragSrcCard=card;
+          card.classList.add('dragging');
+          hap.tap();
+        } else {
+          holding=true; hap.preview();
+          showPreview(card, {name:vid.title, size:vid.size}, url, tx, ty);
+        }
       }, 320);
     }
     function onTouchMove(e){
       const t=e.touches[0];
       const dx=Math.abs(t.clientX-startX);
       const dy=Math.abs(t.clientY-startY);
+
+      if(draggingEdit){
+        e.preventDefault();
+        const els=document.elementsFromPoint(t.clientX, t.clientY);
+        const target=els.find(el=>el.classList.contains('video-card') && el!==dragSrcCard);
+        document.getElementById('videoGrid').querySelectorAll('.video-card').forEach(c=>c.classList.remove('drag-over-vid'));
+        if(target) target.classList.add('drag-over-vid');
+        return;
+      }
+
       if(holding) return;
-      if(!scrubbing && dx>14 && dx>dy*1.5){
+      if(!editMode && !scrubbing && dx>14 && dx>dy*1.5){
         scrubbing=true; didMove=true;
         clearTimeout(pressTimer);
-        showPreview(card, {name:vid.title}, url, t.clientX, t.clientY);
+        showPreview(card, {name:vid.title, size:vid.size}, url, t.clientX, t.clientY);
         hap.tap(); stopFragmentJumps();
       }
       if(scrubbing){
         const now=Date.now();
         if(now-lastSeekTime<100) return;
         lastSeekTime=now;
-        // scrubbing por posición del dedo en la tarjeta
         const rect=card.getBoundingClientRect();
         const ratio=Math.max(0,Math.min(1,(t.clientX-rect.left)/rect.width));
         const dur=fpVid.duration;
         if(dur && isFinite(dur)) fpVid.currentTime=ratio*dur;
-        // mostrar tiempo actual encima del preview sin moverlo
         fpLbl.textContent = fmtTime(fpVid.currentTime) + ' / ' + fmtTime(dur);
       } else if(!scrubbing && (dx>12||dy>12)){
         didMove=true; clearTimeout(pressTimer);
       }
     }
-    function onTouchEnd(e){
+    async function onTouchEnd(e){
       e.preventDefault();
       clearTimeout(pressTimer);
+
+      if(draggingEdit){
+        draggingEdit=false;
+        const t=e.changedTouches[0];
+        const els=document.elementsFromPoint(t.clientX, t.clientY);
+        const target=els.find(el=>el.classList.contains('video-card') && el!==dragSrcCard);
+        const grid=document.getElementById('videoGrid');
+        grid.querySelectorAll('.video-card').forEach(c=>c.classList.remove('drag-over-vid'));
+        card.classList.remove('dragging');
+        if(target){
+          const cards=[...grid.querySelectorAll('.video-card')];
+          const srcIdx=cards.indexOf(dragSrcCard);
+          const tgtIdx=cards.indexOf(target);
+          if(srcIdx<tgtIdx) grid.insertBefore(dragSrcCard, target.nextSibling);
+          else grid.insertBefore(dragSrcCard, target);
+          const newOrder=[...grid.querySelectorAll('.video-card')];
+          for(let i=0;i<newOrder.length;i++){
+            const v=currentVideos.find(v=>newOrder[i].dataset.vid==v.id);
+            if(v){v.order=i; await dbPut('videos',v);}
+          }
+          hap.set();
+        }
+        dragSrcCard=null;
+        return;
+      }
+
       if(holding){ holding=false; hidePreview(); }
-      else if(scrubbing){ scrubbing=false; hidePreview(); }
-      else if(!didMove){ openPlayer(vid, url, card); }
+      else if(scrubbing){
+        scrubbing=false;
+        const seekTime = fpVid.currentTime;
+        hidePreview();
+        openPlayer(vid, url, card);
+        cpVid().addEventListener('loadedmetadata', ()=>{
+          cpVid().currentTime = seekTime;
+        }, {once:true});
+      }
+      else if(!didMove && !editMode){ openPlayer(vid, url, card); }
     }
     function onMouseDown(e){
       if(isTouchDevice) return;
       const tx=e.clientX, ty=e.clientY;
       pressTimer=setTimeout(()=>{
         holding=true; hap.preview();
-        showPreview(card, {name:vid.title}, url, tx, ty);
+        showPreview(card, {name:vid.title, size:vid.size}, url, tx, ty);
       }, 320);
     }
     function onMouseUp(){
@@ -1430,15 +1619,46 @@ function fmtTime(s){
   return `${m}:${sec.toString().padStart(2,'0')}`;
 }
 
+// ════ WAKE LOCK ════
+let wakeLock = null;
+async function requestWakeLock(){
+  try{
+    if('wakeLock' in navigator){
+      wakeLock = await navigator.wakeLock.request('screen');
+    }
+  }catch(e){}
+}
+function releaseWakeLock(){
+  if(wakeLock){ wakeLock.release().catch(()=>{}); wakeLock=null; }
+}
+// reactivar si la app vuelve al primer plano
+document.addEventListener('visibilitychange', ()=>{
+  if(document.visibilityState==='visible' && cpEl().style.display==='block'){
+    requestWakeLock();
+  }
+});
+
 function openPlayer(vid, url, cardEl){
   currentVideo = vid;
   const v = cpVid();
+  requestWakeLock();
   v.src = url;
+
+  // restaurar posición si es el último video visto
+  if(lastPos.videoId === vid.id && lastPos.position > 2){
+    v.addEventListener('loadedmetadata', ()=>{
+      v.currentTime = lastPos.position;
+    }, {once:true});
+    showToast(`▶ Continuando desde ${fmtTime(lastPos.position)}`);
+  }
 
   document.getElementById('cpTitle').textContent = vid.title;
   const isPreview = vid.id === currentFolder.previewId;
   document.getElementById('cpPreviewBtn').classList.toggle('active', isPreview);
   document.getElementById('previewLabel').textContent = isPreview ? '✓ Es el preview' : 'Usar como preview';
+  const isBanner = vid.id === currentFolder.bannerId;
+  document.getElementById('cpBannerBtn').classList.toggle('active', isBanner);
+  document.getElementById('bannerLabel').textContent = isBanner ? '✓ Es el banner' : 'Usar como banner';
 
   const player = cpEl();
   player.style.display = 'block';
@@ -1504,7 +1724,7 @@ function setupCpEvents(v){
   // usamos touchend en lugar de click para cubrir toda la pantalla incluyendo zonas laterales
   cpEl()._tapHandler = (e)=>{
     // no activar si viene de botones o barra de progreso
-    if(e.target.closest('.cp-icon-btn,.cp-play-btn,.cp-action-btn,.cp-progress-wrap,.cp-menu,.cp-menu-item')) return;
+    if(e.target.closest('.cp-icon-btn,.cp-play-btn,.cp-action-btn,.cp-skip-btn,.cp-progress-wrap,.cp-menu,.cp-menu-item')) return;
     onCpTap();
   };
   cpEl().addEventListener('touchend', cpEl()._tapHandler);
@@ -1561,14 +1781,14 @@ function setupCpSwipe(v){
   let swipeDir=null, seeking=false;
 
   cpEl().addEventListener('touchstart', e=>{
-    if(e.target.closest('.cp-icon-btn,.cp-play-btn,.cp-action-btn,.cp-progress-wrap,.cp-menu,.cp-menu-item')) return;
+    if(e.target.closest('.cp-icon-btn,.cp-play-btn,.cp-action-btn,.cp-skip-btn,.cp-progress-wrap,.cp-menu,.cp-menu-item')) return;
     sx=e.touches[0].clientX; sy=e.touches[0].clientY;
     startVol=v.volume; startTime=v.currentTime;
     swipeDir=null; seeking=false;
   },{passive:true});
 
   cpEl().addEventListener('touchmove', e=>{
-    if(e.target.closest('.cp-icon-btn,.cp-play-btn,.cp-action-btn,.cp-progress-wrap,.cp-menu,.cp-menu-item')) return;
+    if(e.target.closest('.cp-icon-btn,.cp-play-btn,.cp-action-btn,.cp-skip-btn,.cp-progress-wrap,.cp-menu,.cp-menu-item')) return;
     const dx=e.touches[0].clientX-sx;
     const dy=e.touches[0].clientY-sy;
     if(!swipeDir && (Math.abs(dx)>10||Math.abs(dy)>10)){
@@ -1659,6 +1879,12 @@ function toggleFullscreen(){
 }
 
 function closePlayer(){
+  releaseWakeLock();
+  // guardar posición del último video
+  const v = cpVid();
+  if(currentVideo && v.currentTime > 2){
+    lastPos = {videoId: currentVideo.id, position: v.currentTime};
+  }
   stopPlayer();
   cpEl().style.display='none';
   closeCpMenu();
@@ -1720,6 +1946,52 @@ async function moveVideoToFolder(targetFolder){
   renderFolderVideos();
 }
 
+async function playNext(){
+  const idx = currentVideos.findIndex(v=>v.id===currentVideo.id);
+  if(idx < currentVideos.length-1){
+    const next = currentVideos[idx+1];
+    const vids = await dbByIdx('videos','folderId',currentFolder.id);
+    const full = vids.find(v=>v.id===next.id);
+    if(!full) return;
+    const blob = new Blob([full.buffer],{type:full.mime||'video/mp4'});
+    const url = URL.createObjectURL(blob);
+    folderVideoBlobUrls.push(url);
+    hap.tap();
+    openPlayer(full, url, null);
+  } else {
+    showToast('Último video de la carpeta');
+  }
+}
+
+async function playPrevious(){
+  const idx = currentVideos.findIndex(v=>v.id===currentVideo.id);
+  if(idx > 0){
+    const prev = currentVideos[idx-1];
+    const vids = await dbByIdx('videos','folderId',currentFolder.id);
+    const full = vids.find(v=>v.id===prev.id);
+    if(!full) return;
+    const blob = new Blob([full.buffer],{type:full.mime||'video/mp4'});
+    const url = URL.createObjectURL(blob);
+    folderVideoBlobUrls.push(url);
+    hap.tap();
+    openPlayer(full, url, null);
+  } else {
+    showToast('Primer video de la carpeta');
+  }
+}
+
+async function setAsBanner(){
+  const isBanner=currentVideo.id===currentFolder.bannerId;
+  currentFolder.bannerId=isBanner?null:currentVideo.id;
+  await dbPut('folders',currentFolder);
+  delete blobCache['banner_'+currentFolder.id];
+  const newIs=!isBanner;
+  document.getElementById('cpBannerBtn').classList.toggle('active',newIs);
+  document.getElementById('bannerLabel').textContent=newIs?'✓ Es el banner':'Usar como banner';
+  hap.set();
+  showToast(newIs?'🎞️ Video de banner guardado':'Banner eliminado');
+}
+
 async function setAsPreview(){
   const isPreview=currentVideo.id===currentFolder.previewId;
   currentFolder.previewId=isPreview?null:currentVideo.id;
@@ -1745,8 +2017,19 @@ async function deleteVideo(){
   if(!confirm(`¿Eliminar "${currentVideo.title}"?`))return;
   hap.danger();
   if(currentVideo.id===currentFolder.previewId){currentFolder.previewId=null;await dbPut('folders',currentFolder);delete blobCache[currentFolder.id];}
+  if(currentVideo.id===currentFolder.bannerId){currentFolder.bannerId=null;await dbPut('folders',currentFolder);delete blobCache['banner_'+currentFolder.id];}
   await dbDel('videos',currentVideo.id);
-  closePlayer();renderFolderVideos();
+  closePlayer();
+  // animar tarjeta antes de re-renderizar
+  const card = document.querySelector(`[data-vid="${currentVideo.id}"]`);
+  if(card){
+    card.style.transition='transform .25s ease, opacity .25s ease';
+    card.style.transform='scale(0)';
+    card.style.opacity='0';
+    setTimeout(()=>renderFolderVideos(), 250);
+  } else {
+    renderFolderVideos();
+  }
 }
 
 // ════ ADD VIDEO ════
@@ -1837,7 +2120,19 @@ async function deleteFolder(){
   for(const v of currentVideos) await dbDel('videos',v.id);
   await dbDel('folders',currentFolder.id);
   delete blobCache[currentFolder.id];
-  closeSheet('sheetFolderOpts');goHome();
+  closeSheet('sheetFolderOpts');
+  // animar tarjeta de carpeta antes de ir al home
+  const folderId = currentFolder.id;
+  goHome();
+  setTimeout(()=>{
+    const card = document.querySelector(`[data-folder-id="${folderId}"]`);
+    if(card){
+      card.style.transition='transform .25s ease, opacity .25s ease';
+      card.style.transform='scale(0)';
+      card.style.opacity='0';
+      setTimeout(()=>renderHome(), 250);
+    }
+  }, 50);
 }
 
 // ════ TOAST ════
@@ -1892,7 +2187,8 @@ function hideSplash(){
 }
 
 openDB().then(()=>renderHome()).then(()=>{
-  setTimeout(hideSplash, 1200); // mínimo 1.2s para que se vea
+  setTimeout(hideSplash, 1200);
+  initHeaderScroll();
 }).catch(e=>{
   console.error(e);
   document.getElementById('headerSub').textContent='Error al abrir base de datos';
