@@ -1,4 +1,4 @@
-const CACHE = 'migaleria-v37';
+const CACHE = 'migaleria-v69';
 const ASSETS = [
   '/Migaleria/',
   '/Migaleria/index.html',
